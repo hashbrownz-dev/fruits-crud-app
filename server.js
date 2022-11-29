@@ -40,19 +40,8 @@ app.use(express.static("public")); // serve static files from public folder
 // ROUTES
 
 app.get('/', (req,res) => {
-    res.send("your server is running... you better catch it!");
-})
-
-// INDEX
-
-app.get('/fruits', async (req, res) => {
-    try{
-        const fruits = await Fruit.find({});
-        res.json(fruits);
-        // res.render("fruits/Index", { fruits });
-    } catch (error){
-        res.json(error);
-    }
+    // res.send("your server is running... you better catch it!");
+    res.render('Default');
 })
 
 // SEED DATABASE
@@ -72,6 +61,98 @@ app.get("/fruits/seed", (req, res) => {
             res.json(data);
         })
     })
+})
+
+// INDEX
+
+app.get('/fruits', async (req, res) => {
+    try{
+        const fruits = await Fruit.find({});
+        // res.json(fruits);
+        res.render("./fruits/Index", {fruits});
+    } catch (error){
+        res.json(error);
+    }
+})
+
+
+// NEW
+
+app.get('/fruits/new', async (req, res) => {
+    try{
+        res.render('./fruits/New');
+    } catch (error){
+        res.json(error);
+    }
+})
+
+// DELETE
+
+app.delete('/fruits/:id', (req, res) => {
+    Fruit.findByIdAndDelete(req.params.id)
+        .then(()=>{
+            res.redirect('/fruits')
+        })
+        .catch((error)=>{
+            res.json(error);
+        })
+})
+
+// CREATE
+
+app.post('/fruits', async (req, res) => {
+    // get properties from form...
+    console.log(req.body.readyToEat);
+    const fruit = {
+        name: req.body.name,
+        color: req.body.color,
+        readyToEat: (req.body.readyToEat === 'on') ? true : false
+    }
+    try{
+        Fruit.create(fruit, (error, createdFruit) => {
+            if(error) res.json(error);
+            console.log(createdFruit);
+            res.redirect('/fruits');
+        })
+    } catch (error){
+        res.json(error);
+    }
+})
+
+// UPDATE
+
+app.put('/fruits/:id', async (req, res) => {
+    req.body.readyToEat = req.body.readyToEat === 'on' ? true : false;
+    Fruit.findByIdAndUpdate(req.params.id, req.body, {new:true})
+    .then((fruit) => {
+        console.log(fruit);
+        res.redirect('/fruits')
+    })
+    .catch((error) => {
+        res.json(error)
+    })
+})
+
+// EDIT
+
+app.get('/fruits/:id/edit', async (req,res) => {
+    try{
+        const fruit = await Fruit.findById(req.params.id);
+        res.render('./fruits/Edit', {fruit});
+    } catch (error){
+        res.json(error);
+    }
+})
+
+// SHOW
+
+app.get('/fruits/:id', async (req, res) => {
+    try{
+        const fruit = await Fruit.findById(req.params.id);
+        res.render('./fruits/Show', {fruit});
+    } catch (error){
+        res.json(error);
+    }
 })
 
 // SERVER LISTERN

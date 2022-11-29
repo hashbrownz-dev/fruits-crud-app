@@ -1,2 +1,4 @@
 node_modules
+Views/fruits/test.jsx
+Views/DefaultLayout.jsx
 .env
